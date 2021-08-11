@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>dotnet-Chat.Agent-35105058-D463-4BE1-8E4D-03DF4D007694</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chat.Common\Chat.Common.csproj" />
+    <ProjectReference Include="..\Chat.Service\Chat.Service.csproj" />
+  </ItemGroup>
+</Project>
