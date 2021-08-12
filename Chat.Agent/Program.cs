@@ -1,10 +1,7 @@
-using Chat.Service;
+using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Chat.Agent
@@ -18,8 +15,13 @@ namespace Chat.Agent
                 {
                     services.AddHostedService<ChatAgent>();
                     services.AddSingleton<IChatService, ChatService>();
-                    services.AddSingleton<IAgentService,AgentService>();
+                    services.AddSingleton<ITeamService, TeamService>();
                     services.AddSingleton<IAzureServiceBusService, AzureServiceBusService>();
+                    services.AddSingleton<IAzureServiceBusService, AzureServiceBusService>();
+                    services.AddSingleton<IAzureRedisService, AzureRedisService>();
+                    services.AddSingleton<ICosmosDBService, CosmosDBService>();
+                    services.Configure<AzureServiceBusConfig>(hostContext.Configuration.GetSection("AzureServiceBus"));
+                    services.Configure<CosmoDBConfig>(hostContext.Configuration.GetSection("AzureCosmosDB"));
                 })
                 .Build();
 

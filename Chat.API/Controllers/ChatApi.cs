@@ -1,10 +1,6 @@
-﻿using Chat.Common.Models;
-using Chat.Service.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Chat.Service.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Chat.Demo.Controllers
@@ -13,36 +9,55 @@ namespace Chat.Demo.Controllers
     [ApiController]
     public class ChatApi : ControllerBase
     {
+        private readonly ILogger<ChatApi> logger;
         private readonly IChatService chatService;
-        private readonly IAzureRedisService azureRedisService;
 
-        public ChatApi(IChatService chatService, IAzureRedisService azureRedisService)
+        public ChatApi(ILogger<ChatApi> logger,
+            IChatService chatService)
         {
+            this.logger = logger;
             this.chatService = chatService;
-            this.azureRedisService = azureRedisService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostAsync(Common.Models.Chat chatModel)
+        [Route("GetChat")]
+        [HttpGet]
+        public async Task<IActionResult> GetAsync(string id)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                chatModel = new Common.Models.Chat { Id = i, UserId = $"UserId {i}", Message = $"Message {i}" };
-                azureRedisService.SetEntity(chatModel.Id.ToString(), chatModel);
-                //await chatService.SetChatAsync(chatModel);
-            }
+            //var chat = await chatService.GetChatAsync(id);
+            var chat = await chatService.DequeueAsync();
+            return Ok(chat);
+        }
 
-            //await chatService.SetChatAsync(chatModel);
-            azureRedisService.SetEntity(chatModel.Id.ToString(), chatModel);
+        [Route("AddChat")]
+        [HttpPost]
+        public async Task<IActionResult> PostAsync(Common.Models.Chat chat)
+        {
+            await chatService.AddChatAsync(chat);
             return Ok();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAsync(int id)
+        [Route("AddChats")]
+        [HttpPost]
+        public async Task<IActionResult> PostAsync()
         {
-            //var chatModel =  await chatService.GetChatAsync();
-            var chatModel = azureRedisService.GetEntity<Common.Models.Chat>(id.ToString());
-            return Ok(chatModel);
+            await chatService.AddChatsAsync();
+            return Ok();
+        }
+
+        [Route("AssignChat")]
+        [HttpPost]
+        public async Task<IActionResult> PostAsync(string id, int teamId, int agentId)
+        {
+            await chatService.AssignChatAsync(id, teamId, agentId);
+            return Ok();
+        }
+
+        [Route("DeleteChats")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAsync()
+        {
+            await chatService.DeleteChatsAsync();
+            return Ok();
         }
     }
 }

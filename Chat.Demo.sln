@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Test", "Chat.Test\Chat.Test.csproj", "{F094EAB8-18A8-46B5-9E2C-A7C9C15DFDBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Common", "Chat.Common\Chat.Common.csproj", "{370F11BB-ADB7-49AA-A022-AF53E712F905}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Common", "Chat.Common\Chat.Common.csproj", "{370F11BB-ADB7-49AA-A022-AF53E712F905}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.API", "Chat.API\Chat.API.csproj", "{2AEA631E-3A9C-4A21-9666-C35F7E2E134F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.API", "Chat.API\Chat.API.csproj", "{2AEA631E-3A9C-4A21-9666-C35F7E2E134F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Service", "Chat.Service\Chat.Service.csproj", "{FDAB3A48-2196-4115-9812-D47B95925B31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Service", "Chat.Service\Chat.Service.csproj", "{FDAB3A48-2196-4115-9812-D47B95925B31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Agent", "Chat.Agent\Chat.Agent.csproj", "{A537CE6A-E80F-491F-8AD5-76C767BA0AB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Agent", "Chat.Agent\Chat.Agent.csproj", "{A537CE6A-E80F-491F-8AD5-76C767BA0AB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

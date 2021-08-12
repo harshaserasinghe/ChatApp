@@ -1,12 +1,15 @@
-﻿using Chat.Common.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Chat.Service.Services
 {
     public interface IChatService
     {
-        Task<Common.Models.Chat> GetChatAsync();
-        Task SetChatAsync(Common.Models.Chat chatModel);
+        Task AddChatAsync(Common.Models.Chat chat);
+        Task AddChatsAsync();
+        Task<Common.Models.Chat> DequeueAsync();
+        Task EnqueueAsync(Common.Models.Chat chat);
+        Task<Common.Models.Chat> GetChatAsync(string id);
+        Task AssignChatAsync(string id, int teamId, int agentId);
+        Task DeleteChatsAsync();
     }
 }

@@ -1,10 +1,7 @@
-using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,35 +9,24 @@ namespace Chat.Agent
 {
     public class ChatAgent : IHostedService, IDisposable
     {
-        //private int executionCount = 0;
-        private readonly ILogger<ChatAgent> _logger;
-        private readonly IChatService chatService;
-        private readonly IAgentService agentService;
         private Timer _timer;
+        //private int executionCount = 0;
+        private readonly ILogger<ChatAgent> logger;
+        private readonly IChatService chatService;
+        private readonly ITeamService teamService;
 
-        public ChatAgent(ILogger<ChatAgent> logger, IChatService chatService, IAgentService agentService)
+        public ChatAgent(ILogger<ChatAgent> logger,
+            IChatService chatService,
+            ITeamService teamService)
         {
-            _logger = logger;
+            this.logger = logger;
             this.chatService = chatService;
-            this.agentService = agentService;
+            this.teamService = teamService;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            var teamModel = new Team
-            {
-                Agents = new List<Common.Models.Agent>
-                {
-                    new Common.Models.Agent(1,"Mid1",Level.MidLevel),
-                    new Common.Models.Agent(2,"Jr1",Level.Junior),
-                    new Common.Models.Agent(3,"Mid2",Level.MidLevel),
-                    new Common.Models.Agent(4,"Sern1",Level.Senior),
-                    new Common.Models.Agent(5,"Jr2",Level.Junior),
-                }
-            };
-
-            agentService.AssignTeam(teamModel);
-
+            
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
                 TimeSpan.FromSeconds(5));
 
@@ -50,14 +36,26 @@ namespace Chat.Agent
         private void DoWork(object state)
         {
             //var count = Interlocked.Increment(ref executionCount);
-            var chatModel = chatService.GetChatAsync().Result;
+            
+            var team = teamService.GetAssignedTeamAsync().Result;
 
-            if(chatModel != null)
+            if (team == null)
             {
-                agentService.AssignChat(chatModel);
-                agentService.ShowTeam();
-                Console.WriteLine("--------------------------------------------------------------------");
+                Console.WriteLine("No team");
+                return;
             }
+
+            var chat = chatService.DequeueAsync().Result;
+
+            if (chat == null)
+            {
+                Console.WriteLine("No chats");
+                return;
+            }
+
+            teamService.AssignChatToTeamAsync(chat, team).Wait();
+            teamService.ShowTeam().Wait();
+            Console.WriteLine();
         }
 
         public Task StopAsync(CancellationToken stoppingToken)

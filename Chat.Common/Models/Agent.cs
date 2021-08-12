@@ -7,15 +7,15 @@ namespace Chat.Common.Models
 {
     public class Agent
     {
-        public Agent(int id,string name, Level level)
+        public Agent(int AgentId, string name, Level level)
         {
-            Id = id;
+            this.AgentId = AgentId;
             Name = name;
             Level = level;
             Multiplier = GetMutiplier(level);
         }
 
-        public int Id { get; set; }
+        public int AgentId { get; set; }
         public string Name { get; set; }
         public Level Level { get; set; }
         public double Multiplier { get; set; }
@@ -48,5 +48,5 @@ namespace Chat.Common.Models
 
             return mutiplier;
         }
-    }  
+    }
 }

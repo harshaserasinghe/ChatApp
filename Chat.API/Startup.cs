@@ -1,3 +1,4 @@
+using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +29,9 @@ namespace Chat.API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.Configure<CosmoDBConfig>(Configuration.GetSection("AzureCosmosDB"));
+            services.Configure<AzureServiceBusConfig>(Configuration.GetSection("AzureServiceBus"));
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -35,8 +39,10 @@ namespace Chat.API
             });
 
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<ITeamService, TeamService>();
             services.AddScoped<IAzureServiceBusService, AzureServiceBusService>();
-            services.AddScoped<IAzureRedisService, AzureRedisService>();
+            services.AddSingleton<IAzureRedisService, AzureRedisService>();
+            services.AddScoped<ICosmosDBService, CosmosDBService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,57 +1,43 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Chat.Common.Models;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat.Service.Services
 {
     public class AzureServiceBusService : IAzureServiceBusService
     {
-        private readonly IConfiguration configuration;
+        private readonly AzureServiceBusConfig azureServiceBusConfig;
         public readonly ServiceBusClient client;
-        private readonly ServiceBusProcessor processor;
 
-        public AzureServiceBusService()
+        public AzureServiceBusService(IOptions<AzureServiceBusConfig> azureServiceBusConfig)
         {
-            //this.configuration = configuration;
-            client = new ServiceBusClient("Endpoint=sb://chatdemo2.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=oRtq3g6PSIST/DNKxZIwqf8huSu903//ezVoFKTe+YI=");
-            //processor = client.CreateProcessor("chatqueue", new ServiceBusProcessorOptions());
-            //processor.ProcessMessageAsync += MessageHandler;
-            //processor.ProcessErrorAsync += ErrorHandler;
-            //processor.StartProcessingAsync();
+            this.azureServiceBusConfig = azureServiceBusConfig.Value;
+            client = new ServiceBusClient(this.azureServiceBusConfig.ConnectionString);
+
         }
 
-        public async Task EnqueueAsync(Common.Models.Chat chatModel)
+        public async Task EnqueueAsync(Common.Models.Chat chat)
         {
-            var sender = client.CreateSender("chatqueue");
-            var message = new ServiceBusMessage(JsonSerializer.Serialize(chatModel));
+            var sender = client.CreateSender(azureServiceBusConfig.Queue);
+            var message = new ServiceBusMessage(JsonSerializer.Serialize(chat));
             await sender.SendMessageAsync(message);
         }
 
         public async Task<Common.Models.Chat> DequeueAsync()
         {
-            var receiver = client.CreateReceiver("chatqueue");
+            var receiver = client.CreateReceiver(azureServiceBusConfig.Queue);
+
+            if (await receiver.PeekMessageAsync() == null)
+            {
+                return null;
+            }
+
             var message = await receiver.ReceiveMessageAsync();
             await receiver.CompleteMessageAsync(message);
-            var chatModel = JsonSerializer.Deserialize<Common.Models.Chat>(message.Body.ToString());
-            return chatModel;
-        }
-        
-        public async Task MessageHandler(ProcessMessageEventArgs args)
-        {
-            var _chatModel = JsonSerializer.Deserialize<Common.Models.Chat>(args.Message.Body.ToString());
-            await args.CompleteMessageAsync(args.Message);
-        }
-
-        public Task ErrorHandler(ProcessErrorEventArgs args)
-        {
-            return Task.CompletedTask;
+            var chat = JsonSerializer.Deserialize<Common.Models.Chat>(message.Body.ToString());
+            return chat;
         }
     }
 }
