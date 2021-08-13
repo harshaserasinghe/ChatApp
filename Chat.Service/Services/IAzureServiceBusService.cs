@@ -8,5 +8,7 @@ namespace Chat.Service.Services
     {
         Task EnqueueAsync(Common.Models.Chat chatModel);
         Task<Common.Models.Chat> DequeueAsync();
+        int GetActiveMessageCount();
+        //Task DequeueAllAsync();
     }
 }

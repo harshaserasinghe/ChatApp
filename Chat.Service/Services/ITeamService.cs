@@ -10,7 +10,7 @@ namespace Chat.Service.Services
         Task ChangeShiftAsync(string id);
         Task<Team> GetTeamAsync(string id);
         Task AssignChatToTeamAsync(Common.Models.Chat chat, Team team);
-        int GetTeamCapacity(Team teamModel);
+        int GetTeamCapacity();
         Task ShowTeam();
     }
 }

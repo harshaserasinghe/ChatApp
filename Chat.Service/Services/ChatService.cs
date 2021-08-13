@@ -1,5 +1,6 @@
 ﻿using Chat.Common.Models;
 using Microsoft.Extensions.Options;
+using System;
 using System.Threading.Tasks;
 
 namespace Chat.Service.Services
@@ -9,21 +10,31 @@ namespace Chat.Service.Services
         private readonly IAzureServiceBusService azureServiceBusService;
         private readonly CosmoDBConfig cosmoDBConfig;
         private readonly ICosmosDBService cosmosDBService;
+        private readonly ITeamService teamService;
 
         public ChatService(IOptions<CosmoDBConfig> cosmoDBConfig,
             ICosmosDBService cosmosDBService,
-            IAzureServiceBusService azureServiceBusService)
+            IAzureServiceBusService azureServiceBusService,
+            ITeamService teamService)
         {
             this.cosmoDBConfig = cosmoDBConfig.Value;
             this.cosmosDBService = cosmosDBService;
             this.azureServiceBusService = azureServiceBusService;
+            this.teamService = teamService;
         }
 
         public async Task<Common.Models.Chat> GetChatAsync(string id) =>
           await cosmosDBService.GetEntity<Common.Models.Chat>(cosmoDBConfig.ChatContainerId, id, id);
 
-        public async Task EnqueueAsync(Common.Models.Chat chat) =>
+        public async Task EnqueueAsync(Common.Models.Chat chat)
+        {
+            if(IsFull())
+            {
+                throw new Exception("Team maximum capacity has been reached.");
+            }
+
             await azureServiceBusService.EnqueueAsync(chat);
+        }
 
 
         public async Task<Common.Models.Chat> DequeueAsync() =>
@@ -36,9 +47,9 @@ namespace Chat.Service.Services
             await EnqueueAsync(chat);
         }
 
-        public async Task AddChatsAsync()
+        public async Task AddChatsAsync(int count)
         {           
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= count; i++)
             {
                 var chat = new Common.Models.Chat(i, $"UserId {i}", $"Message {i}");
                 await cosmosDBService.AddEntity(chat, cosmoDBConfig.ChatContainerId, chat.Id);
@@ -63,6 +74,23 @@ namespace Chat.Service.Services
             foreach (var chat in chats)
             {
                 await cosmosDBService.DeleteEntity<Common.Models.Chat>(cosmoDBConfig.ChatContainerId, chat.Id, chat.Id);
+            }
+
+            //await azureServiceBusService.DequeueAllAsync();
+        }
+
+        public bool IsFull()
+        {
+            var activeMessageCount = azureServiceBusService.GetActiveMessageCount();
+            var teamCapacity = teamService.GetTeamCapacity();
+
+            if (activeMessageCount == teamCapacity)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

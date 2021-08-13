@@ -1,4 +1,6 @@
-﻿using StackExchange.Redis;
+﻿using Chat.Common.Models;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +12,11 @@ namespace Chat.Service.Services
 {
     public class AzureRedisService : IAzureRedisService
     {
+        private readonly AzureRedisConfig azureRedisConfig;
         private readonly Lazy<ConnectionMultiplexer> lazyConnection;
-        public AzureRedisService()
+        public AzureRedisService(IOptions<AzureRedisConfig> azureRedisConfig)
         {
+            this.azureRedisConfig = azureRedisConfig.Value;
             lazyConnection = CreateConnection();
         }
 
@@ -20,7 +24,7 @@ namespace Chat.Service.Services
         {
             return new Lazy<ConnectionMultiplexer>(() =>
             {
-                string cacheConnection = "chatdemo.redis.cache.windows.net:6380,password=xD53zUA1ckI1czhezffdfplsKCow8je6zwFZJtFSRaM=,ssl=True,abortConnect=False";
+                string cacheConnection = azureRedisConfig.ConnectionString;
                 return ConnectionMultiplexer.Connect(cacheConnection);
             });
         }
@@ -38,6 +42,12 @@ namespace Chat.Service.Services
             var value = cache.StringGet(key);
             var entity = JsonSerializer.Deserialize<T>(value);
             return entity;
+        }
+
+        public bool IsEntityExists(string key)
+        {
+            var cache = lazyConnection.Value.GetDatabase();
+            return cache.KeyExists(key);
         }
     }
 }

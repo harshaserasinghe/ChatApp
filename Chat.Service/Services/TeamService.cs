@@ -13,17 +13,17 @@ namespace Chat.Service.Services
         private readonly ILogger<TeamService> logger;
         private readonly CosmoDBConfig cosmoDBConfig;
         private readonly ICosmosDBService cosmosDBService;
-        private readonly IChatService chatService;
+        //private readonly IChatService chatService;
 
         public TeamService(ILogger<TeamService> logger,
             IOptions<CosmoDBConfig> cosmoDBConfig,
-            ICosmosDBService cosmosDBService,
-            IChatService chatService)
+            ICosmosDBService cosmosDBService)
+            //IChatService chatService)
         {
             this.logger = logger;
             this.cosmoDBConfig = cosmoDBConfig.Value;
             this.cosmosDBService = cosmosDBService;
-            this.chatService = chatService;
+            //this.chatService = chatService;
         }
 
         public async Task<Team> GetTeamAsync(string id) =>
@@ -122,15 +122,17 @@ namespace Chat.Service.Services
 
         private async Task AssignChatToAgentAsync(Common.Models.Chat chat, Team team, Agent agentModel)
         {
-            await chatService.AssignChatAsync(chat.Id, team.TeamId, agentModel.AgentId);
+            //await chatService.AssignChatAsync(chat.Id, team.TeamId, agentModel.AgentId);
             agentModel.Queue.Enqueue(chat);
         }
 
-        public int GetTeamCapacity(Team teamModel)
+        public int GetTeamCapacity()
         {
+            var team  =  GetAssignedTeamAsync().Result;
+
             double capacity = 0;
 
-            teamModel.Agents.ForEach(agent =>
+            team.Agents.ForEach(agent =>
             {
                 capacity = capacity + (10 * agent.Multiplier);
             });

@@ -38,9 +38,9 @@ namespace Chat.Demo.Controllers
 
         [Route("AddChats")]
         [HttpPost]
-        public async Task<IActionResult> PostAsync()
+        public async Task<IActionResult> PostAsync(int count)
         {
-            await chatService.AddChatsAsync();
+            await chatService.AddChatsAsync(count);
             return Ok();
         }
 
@@ -59,5 +59,7 @@ namespace Chat.Demo.Controllers
             await chatService.DeleteChatsAsync();
             return Ok();
         }
+
+
     }
 }

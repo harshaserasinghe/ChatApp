@@ -31,6 +31,7 @@ namespace Chat.API
 
             services.Configure<CosmoDBConfig>(Configuration.GetSection("AzureCosmosDB"));
             services.Configure<AzureServiceBusConfig>(Configuration.GetSection("AzureServiceBus"));
+            services.Configure<AzureRedisConfig>(Configuration.GetSection("AzureRedis"));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

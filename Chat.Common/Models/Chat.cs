@@ -10,7 +10,7 @@ namespace Chat.Common.Models
     {
         public Chat(int chatId, string userId, string message)
         {
-            Id = chatId.ToString();
+            Id = Guid.NewGuid().ToString();
             ChatId = chatId;
             UserId = userId;
             Message = message;
