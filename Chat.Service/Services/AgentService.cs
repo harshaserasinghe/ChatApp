@@ -30,37 +30,42 @@ namespace Chat.Service.Services
         {
             var team = new Team(1, "Team A", Shift.Office, new List<Agent>
             {
-                new Agent(1, "Udara", Level.Junior),
-                new Agent(2, "Chathuranga", Level.MidLevel),
-                new Agent(3, "Bassnayaka", Level.MidLevel),
-                new Agent(4, "Chanaka", Level.TeamLead)
+                new Agent(1, "Junior", Level.Junior),
+                new Agent(2, "MidLevel 1", Level.MidLevel),
+                new Agent(3, "MidLevel 2", Level.MidLevel),
+                new Agent(4, "TeamLead", Level.TeamLead)
             },
             true);
 
             var team2 = new Team(2, "Team B", Shift.NonOffice, new List<Agent>
             {
-                new Agent(4, "Hasitha", Level.Junior),
-                new Agent(5, "Piyumi", Level.Junior),
-                new Agent(6, "Pavithra", Level.MidLevel),
-                new Agent(7, "Amila", Level.Senior)
+                new Agent(5, "Junior 1", Level.Junior),
+                new Agent(6, "Junior 2", Level.Junior),
+                new Agent(7, "MidLevel", Level.MidLevel),
+                new Agent(8, "Senior", Level.Senior)
             });
 
 
             var team3 = new Team(3, "Team C", Shift.Night, new List<Agent>
             {
-                new Agent(8, "Harsha", Level.MidLevel),
-                new Agent(9, "Uthpala", Level.MidLevel),
+                new Agent(9, "MidLevel 1", Level.MidLevel),
+                new Agent(10, "MidLevel 2", Level.MidLevel),
             });
 
-            var teamOverflow = new Team(3, "Overflow", Shift.Night, new List<Agent>
+            var teamOverflow = new Team(4, "Overflow", Shift.None, new List<Agent>
             {
-                new Agent(8, "Harsha", Level.MidLevel),
-                new Agent(9, "Uthpala", Level.MidLevel),
+                new Agent(11, "Junior Overflow 1", Level.Junior, true),
+                new Agent(12, "Junior Overflow 2", Level.Junior, true),
+                new Agent(13, "Junior Overflow 3", Level.Junior, true),
+                new Agent(14, "Junior Overflow 4", Level.Junior, true),
+                new Agent(15, "Junior Overflow 5", Level.Junior, true),
+                new Agent(16, "Junior Overflow 6", Level.Junior, true),
             });
 
             await cosmosDBService.AddEntity(team, cosmoDBConfig.TeamContainerId, team.Id);
             await cosmosDBService.AddEntity(team2, cosmoDBConfig.TeamContainerId, team2.Id);
             await cosmosDBService.AddEntity(team3, cosmoDBConfig.TeamContainerId, team3.Id);
+            await cosmosDBService.AddEntity(teamOverflow, cosmoDBConfig.TeamContainerId, teamOverflow.Id);
         }
 
         public async Task ChangeTeamAsync(string name)
@@ -105,22 +110,22 @@ namespace Chat.Service.Services
                 {
                     if (agent.Level.Equals(Level.Junior))
                     {
-                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
+                        agent.Queue.Enqueue(supportRequest);
                         break;
                     }
                     else if (agent.Level.Equals(Level.MidLevel))
                     {
-                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
+                        agent.Queue.Enqueue(supportRequest);
                         break;
                     }
                     else if (agent.Level.Equals(Level.Senior))
                     {
-                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
+                        agent.Queue.Enqueue(supportRequest);
                         break;
                     }
                     else if (agent.Level.Equals(Level.TeamLead))
                     {
-                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
+                        agent.Queue.Enqueue(supportRequest);
                         break;
                     }
                 }
@@ -130,11 +135,6 @@ namespace Chat.Service.Services
                 .OrderBy(agent => agent.Level).ThenBy(agent => agent.Queue.Count).ToList();
 
             await cosmosDBService.UpdateEntity<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
-        }
-
-        private async Task AssignSupportRequestToAgentAsync(SupportRequest chat, Team team, Agent agent)
-        {
-            agent.Queue.Enqueue(chat);
         }
 
         public async Task DeleteTeamsAsync()

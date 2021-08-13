@@ -4,18 +4,20 @@ namespace Chat.Common.Models
 {
     public class Agent
     {
-        public Agent(int AgentId, string name, Level level)
+        public Agent(int AgentId, string name, Level level, bool isOverflow = false)
         {
             this.AgentId = AgentId;
             Name = name;
             Level = level;
             Multiplier = GetMutiplier(level);
+            IsOverflow = isOverflow;
         }
 
         public int AgentId { get; set; }
         public string Name { get; set; }
         public Level Level { get; set; }
         public double Multiplier { get; set; }
+        public bool IsOverflow { get; set; }
         public Queue<SupportRequest> Queue { get; set; } = new Queue<SupportRequest>();
 
         public bool IsCapacityExceeded(double multiplier) =>
