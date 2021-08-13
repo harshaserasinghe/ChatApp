@@ -14,7 +14,7 @@ namespace Chat.Agent
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<ChatAgent>();
-                    services.AddSingleton<IChatService, ChatService>();
+                    services.AddSingleton<ISupportService, SupportService>();
                     services.AddSingleton<ITeamService, TeamService>();
                     services.AddSingleton<IAzureServiceBusService, AzureServiceBusService>();
                     services.AddSingleton<IAzureServiceBusService, AzureServiceBusService>();

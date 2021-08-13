@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Chat.Common.Models
 {
@@ -11,7 +7,7 @@ namespace Chat.Common.Models
     {
         public Team(int teamId, string name, Shift shift, List<Agent> agents)
         {
-            Id = teamId.ToString();
+            Id = teamId.ToString();//make it Guid
             TeamId = teamId;
             Name = name;
             Shift = shift;
@@ -23,7 +19,7 @@ namespace Chat.Common.Models
         public int TeamId { get; set; }
         public string Name { get; set; }
         public Shift Shift { get; set; }
-        public bool IsAssign { get; set; }
+        public bool IsAssigned { get; set; }
         public List<Agent> Agents { get; set; } = new List<Agent>();
     }
 }

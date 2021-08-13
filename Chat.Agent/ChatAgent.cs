@@ -12,11 +12,11 @@ namespace Chat.Agent
         private Timer _timer;
         //private int executionCount = 0;
         private readonly ILogger<ChatAgent> logger;
-        private readonly IChatService chatService;
+        private readonly ISupportService chatService;
         private readonly ITeamService teamService;
 
         public ChatAgent(ILogger<ChatAgent> logger,
-            IChatService chatService,
+            ISupportService chatService,
             ITeamService teamService)
         {
             this.logger = logger;
@@ -45,7 +45,7 @@ namespace Chat.Agent
                 return;
             }
 
-            var chat = chatService.DequeueAsync().Result;
+            var chat = chatService.DequeueSupportRequestAsync().Result;
 
             if (chat == null)
             {

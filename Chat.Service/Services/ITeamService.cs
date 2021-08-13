@@ -9,8 +9,8 @@ namespace Chat.Service.Services
         Task<Team> GetAssignedTeamAsync();
         Task ChangeShiftAsync(string id);
         Task<Team> GetTeamAsync(string id);
-        Task AssignChatToTeamAsync(Common.Models.Chat chat, Team team);
-        int GetTeamCapacity();
+        Task AssignChatToTeamAsync(Common.Models.SupportRequest chat, Team team);
+        int GetCapacity();
         Task ShowTeam();
     }
 }

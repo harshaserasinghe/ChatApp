@@ -39,7 +39,7 @@ namespace Chat.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Chat.API", Version = "v1" });
             });
 
-            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<ISupportService, SupportService>();
             services.AddScoped<ITeamService, TeamService>();
             services.AddScoped<IAzureServiceBusService, AzureServiceBusService>();
             services.AddSingleton<IAzureRedisService, AzureRedisService>();

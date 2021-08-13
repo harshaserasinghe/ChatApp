@@ -66,30 +66,30 @@ namespace Chat.Service.Services
 
             if (currentTeam != null)
             {
-                currentTeam.IsAssign = false;
+                currentTeam.IsAssigned = false;
                 currentTeam.Agents.ForEach(agent => agent.Queue.Clear());
                 await cosmosDBService.UpdateEntity(currentTeam, cosmoDBConfig.TeamContainerId, currentTeam.Id, currentTeam.Id);
             }
 
             var newTeam = await cosmosDBService.GetEntity<Team>(cosmoDBConfig.TeamContainerId, id, id);
-            newTeam.IsAssign = true;
+            newTeam.IsAssigned = true;
             await cosmosDBService.UpdateEntity(newTeam, cosmoDBConfig.TeamContainerId, newTeam.Id, newTeam.Id);
         }
 
         public async Task<Team> GetAssignedTeamAsync()
         {
-            var query = "SELECT * FROM team WHERE team.IsAssign = true";
+            var query = "SELECT * FROM team WHERE team.IsAssigned = true";
             return (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
         }
 
-        public async Task AssignChatToTeamAsync(Common.Models.Chat chat, Team team)
+        public async Task AssignChatToTeamAsync(Common.Models.SupportRequest chat, Team team)
         {
             team.Agents = team.Agents
                 .OrderBy(agent => agent.Level).ThenBy(agent => agent.Queue.Count).ToList();
 
             foreach (var agentModel in team.Agents)
             {
-                if (!agentModel.IsFull(agentModel.Multiplier))
+                if (!agentModel.IsCapacityExceeded(agentModel.Multiplier))
                 {
                     if (agentModel.Level.Equals(Level.Junior))
                     {
@@ -120,13 +120,13 @@ namespace Chat.Service.Services
             await cosmosDBService.UpdateEntity<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
         }
 
-        private async Task AssignChatToAgentAsync(Common.Models.Chat chat, Team team, Agent agentModel)
+        private async Task AssignChatToAgentAsync(Common.Models.SupportRequest chat, Team team, Agent agentModel)
         {
             //await chatService.AssignChatAsync(chat.Id, team.TeamId, agentModel.AgentId);
             agentModel.Queue.Enqueue(chat);
         }
 
-        public int GetTeamCapacity()
+        public int GetCapacity()
         {
             var team  =  GetAssignedTeamAsync().Result;
 

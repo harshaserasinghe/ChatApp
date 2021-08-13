@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Chat.Common.Models
 {
@@ -19,9 +16,9 @@ namespace Chat.Common.Models
         public string Name { get; set; }
         public Level Level { get; set; }
         public double Multiplier { get; set; }
-        public Queue<Chat> Queue { get; set; } = new Queue<Chat>();
+        public Queue<SupportRequest> Queue { get; set; } = new Queue<SupportRequest>();
 
-        public bool IsFull(double multiplier) =>
+        public bool IsCapacityExceeded(double multiplier) =>
             (multiplier * 10) == Queue.Count;
 
         public double GetMutiplier(Level level)
