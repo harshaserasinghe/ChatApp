@@ -20,8 +20,8 @@ namespace Chat.Common.Models
         public bool IsOverflow { get; set; }
         public Queue<SupportRequest> Queue { get; set; } = new Queue<SupportRequest>();
 
-        public bool IsCapacityExceeded(double multiplier) =>
-            (multiplier * 10) == Queue.Count;
+        public bool IsCapacityExceeded() =>
+            (Multiplier * 10) == Queue.Count;
 
         public double GetMutiplier(Level level)
         {

@@ -75,8 +75,17 @@ namespace Chat.Agent
         {
             foreach (var agent in team.Agents)
             {
-                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");
+                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");              
             }
+
+            if (team.HasOverflow)
+            {
+                foreach (var overFlowagent in team.OverTeamFlow.Agents)
+                {
+                    Console.WriteLine($"{overFlowagent.AgentId} {team.Name} {overFlowagent.Name} {overFlowagent.Level.ToString()} {overFlowagent.Queue.Count}");
+                }
+            }
+
             Console.WriteLine();
         }
     }

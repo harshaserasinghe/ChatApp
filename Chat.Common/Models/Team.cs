@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chat.Common.Models
 {
@@ -13,7 +14,7 @@ namespace Chat.Common.Models
             Shift = shift;
             Agents = agents;
             IsAssigned = isAssigned;
-            IsOverflow = shift == Shift.Office;
+            HasOverflow = shift == Shift.Office;
         }
 
         [JsonProperty(PropertyName = "id")]
@@ -22,7 +23,13 @@ namespace Chat.Common.Models
         public string Name { get; set; }
         public Shift Shift { get; set; }
         public bool IsAssigned { get; set; }
-        public bool IsOverflow { get; set; }
+        public bool HasOverflow { get; set; }
         public List<Agent> Agents { get; set; } = new List<Agent>();
+
+        [JsonIgnore]
+        public OverTeamFlow OverTeamFlow { get; set; }
+
+        public bool IsCapacityExceeded() =>
+          Agents.All(agent => agent.IsCapacityExceeded());
     }
 }

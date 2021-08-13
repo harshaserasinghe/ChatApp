@@ -23,8 +23,19 @@ namespace Chat.Service.Services
             this.cosmosDBService = cosmosDBService;
         }
 
-        public async Task<Team> GetTeamAsync(string id) =>
-           await cosmosDBService.GetEntity<Team>(cosmoDBConfig.TeamContainerId, id, id);
+        public async Task<Team> GetTeamAsync(string id) 
+        {
+            var team = await cosmosDBService.GetEntity<Team>(cosmoDBConfig.TeamContainerId, id, id);
+
+            if (team.HasOverflow)
+            {
+                var overTeamFlow = await GetOverflowTeamAsync();
+                team.OverTeamFlow = overTeamFlow;
+            }
+
+            return team;
+        }
+           
 
         public async Task AddTeamsAsync()
         {
@@ -52,7 +63,7 @@ namespace Chat.Service.Services
                 new Agent(10, "MidLevel 2", Level.MidLevel),
             });
 
-            var teamOverflow = new Team(4, "Overflow", Shift.None, new List<Agent>
+            var teamOverflow = new OverTeamFlow(4, "Overflow",new List<Agent>
             {
                 new Agent(11, "Junior Overflow 1", Level.Junior, true),
                 new Agent(12, "Junior Overflow 2", Level.Junior, true),
@@ -77,6 +88,12 @@ namespace Chat.Service.Services
                 currentTeam.IsAssigned = false;
                 currentTeam.Agents.ForEach(agent => agent.Queue.Clear());
                 await cosmosDBService.UpdateEntity(currentTeam, cosmoDBConfig.TeamContainerId, currentTeam.Id, currentTeam.Id);
+
+                if (currentTeam.HasOverflow)
+                {
+                    currentTeam.OverTeamFlow.Agents.ForEach(agent => agent.Queue.Clear());
+                    await cosmosDBService.UpdateEntity(currentTeam.OverTeamFlow, cosmoDBConfig.TeamContainerId, currentTeam.OverTeamFlow.Id, currentTeam.OverTeamFlow.Id);
+                }
             }
 
             var newTeam = await GetTeamByNameAsync(name);
@@ -84,57 +101,108 @@ namespace Chat.Service.Services
             {
                 newTeam.IsAssigned = true;
                 await cosmosDBService.UpdateEntity(newTeam, cosmoDBConfig.TeamContainerId, newTeam.Id, newTeam.Id);
-            }
+            }         
         }
 
         public async Task<Team> GetTeamByNameAsync(string name)
         {
             var query = $"SELECT * FROM team WHERE team.Name = '{name}'";
-            return (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
+            var team = (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
+
+            if (team.HasOverflow)
+            {
+                var overTeamFlow = await GetOverflowTeamAsync();
+                team.OverTeamFlow = overTeamFlow;
+            }
+
+            return team;
         }
 
         public async Task<Team> GetAssignedTeamAsync()
         {
             var query = "SELECT * FROM team WHERE team.IsAssigned = true";
-            return (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
+            var team = (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
+
+            if (team.HasOverflow)
+            {
+                var overTeamFlow = await GetOverflowTeamAsync();
+                team.OverTeamFlow = overTeamFlow;
+            }
+
+            return team;
+        }
+
+        public async Task<OverTeamFlow> GetOverflowTeamAsync()
+        {
+            var query = $"SELECT * FROM team WHERE team.Name = 'Overflow'";
+            return (await cosmosDBService.GetEntities<OverTeamFlow>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
         }
 
         public async Task AssignSupportRequestToTeamAsync(SupportRequest supportRequest, Team team)
         {
             team.Agents = team.Agents
-                .OrderBy(agent => agent.Level).ThenBy(agent => agent.Queue.Count).ToList();
+                .OrderBy(agent => agent.Level)
+                .ThenBy(agent => agent.Queue.Count)
+                .ToList();
 
-            foreach (var agent in team.Agents)
+            if (team.HasOverflow && team.IsCapacityExceeded())
             {
-                if (!agent.IsCapacityExceeded(agent.Multiplier))
+                team.OverTeamFlow.Agents = team.OverTeamFlow.Agents
+               .OrderBy(agent => agent.Queue.Count)
+               .ToList();
+
+                foreach (var overFlowAgent in team.OverTeamFlow.Agents)
                 {
-                    if (agent.Level.Equals(Level.Junior))
+                    if (!overFlowAgent.IsCapacityExceeded())
                     {
-                        agent.Queue.Enqueue(supportRequest);
-                        break;
-                    }
-                    else if (agent.Level.Equals(Level.MidLevel))
-                    {
-                        agent.Queue.Enqueue(supportRequest);
-                        break;
-                    }
-                    else if (agent.Level.Equals(Level.Senior))
-                    {
-                        agent.Queue.Enqueue(supportRequest);
-                        break;
-                    }
-                    else if (agent.Level.Equals(Level.TeamLead))
-                    {
-                        agent.Queue.Enqueue(supportRequest);
+                        overFlowAgent.Queue.Enqueue(supportRequest);
                         break;
                     }
                 }
             }
-
+            else
+            {
+                foreach (var agent in team.Agents)
+                {
+                    if (!agent.IsCapacityExceeded())
+                    {
+                        if (agent.Level.Equals(Level.Junior))
+                        {
+                            agent.Queue.Enqueue(supportRequest);
+                            break;
+                        }
+                        else if (agent.Level.Equals(Level.MidLevel))
+                        {
+                            agent.Queue.Enqueue(supportRequest);
+                            break;
+                        }
+                        else if (agent.Level.Equals(Level.Senior))
+                        {
+                            agent.Queue.Enqueue(supportRequest);
+                            break;
+                        }
+                        else if (agent.Level.Equals(Level.TeamLead))
+                        {
+                            agent.Queue.Enqueue(supportRequest);
+                            break;
+                        }
+                    }
+                }
+            }           
+          
             team.Agents = team.Agents
                 .OrderBy(agent => agent.Level).ThenBy(agent => agent.Queue.Count).ToList();
 
             await cosmosDBService.UpdateEntity<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
+
+            if (team.HasOverflow)
+            {
+                team.OverTeamFlow.Agents = team.OverTeamFlow.Agents
+                .OrderBy(agent => agent.Queue.Count)
+                .ToList();
+
+                await cosmosDBService.UpdateEntity<OverTeamFlow>(team.OverTeamFlow, cosmoDBConfig.TeamContainerId, team.OverTeamFlow.Id, team.OverTeamFlow.Id);
+            }
         }
 
         public async Task DeleteTeamsAsync()
@@ -150,16 +218,11 @@ namespace Chat.Service.Services
 
         public async Task<int> GetCapacity()
         {
-            var team = await GetAssignedTeamAsync();
-
             double capacity = 0;
+            var team = await GetAssignedTeamAsync();
+            capacity = capacity + (team.Agents.Sum(agent => (agent.Multiplier * 10)));
 
-            team.Agents.ForEach(agent =>
-            {
-                capacity = capacity + (10 * agent.Multiplier);
-            });
-
-            if (team.IsOverflow)
+            if (team.HasOverflow)
             {
                 capacity = capacity + (10 * 0.4 * 6);
             }
