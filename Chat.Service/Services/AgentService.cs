@@ -28,16 +28,16 @@ namespace Chat.Service.Services
 
         public async Task AddTeamsAsync()
         {
-            var team = new Team(1, "Team A", Shift.Morning, new List<Agent>
+            var team = new Team(1, "Team A", Shift.Office, new List<Agent>
             {
                 new Agent(1, "Udara", Level.Junior),
                 new Agent(2, "Chathuranga", Level.MidLevel),
                 new Agent(3, "Bassnayaka", Level.MidLevel),
                 new Agent(4, "Chanaka", Level.TeamLead)
-            }, 
+            },
             true);
 
-            var team2 = new Team(2, "Team B", Shift.Afternoon, new List<Agent>
+            var team2 = new Team(2, "Team B", Shift.NonOffice, new List<Agent>
             {
                 new Agent(4, "Hasitha", Level.Junior),
                 new Agent(5, "Piyumi", Level.Junior),
@@ -47,6 +47,12 @@ namespace Chat.Service.Services
 
 
             var team3 = new Team(3, "Team C", Shift.Night, new List<Agent>
+            {
+                new Agent(8, "Harsha", Level.MidLevel),
+                new Agent(9, "Uthpala", Level.MidLevel),
+            });
+
+            var teamOverflow = new Team(3, "Overflow", Shift.Night, new List<Agent>
             {
                 new Agent(8, "Harsha", Level.MidLevel),
                 new Agent(9, "Uthpala", Level.MidLevel),
@@ -130,7 +136,7 @@ namespace Chat.Service.Services
         {
             agent.Queue.Enqueue(chat);
         }
-       
+
         public async Task DeleteTeamsAsync()
         {
             var query = "SELECT * FROM teams";
@@ -152,6 +158,11 @@ namespace Chat.Service.Services
             {
                 capacity = capacity + (10 * agent.Multiplier);
             });
+
+            if (team.IsOverflow)
+            {
+                capacity = capacity + (10 * 0.4 * 6);
+            }
 
             return (int)Math.Floor(capacity * 1.5);
         }
