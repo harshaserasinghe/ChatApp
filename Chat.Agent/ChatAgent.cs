@@ -1,3 +1,4 @@
+using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,11 +14,11 @@ namespace Chat.Agent
         //private int executionCount = 0;
         private readonly ILogger<ChatAgent> logger;
         private readonly ISupportService chatService;
-        private readonly ITeamService teamService;
+        private readonly IAgentService teamService;
 
         public ChatAgent(ILogger<ChatAgent> logger,
             ISupportService chatService,
-            ITeamService teamService)
+            IAgentService teamService)
         {
             this.logger = logger;
             this.chatService = chatService;
@@ -28,7 +29,7 @@ namespace Chat.Agent
         {
             
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(2));
+                TimeSpan.FromSeconds(5));
 
             return Task.CompletedTask;
         }
@@ -36,26 +37,26 @@ namespace Chat.Agent
         private void DoWork(object state)
         {
             //var count = Interlocked.Increment(ref executionCount);
-            
+
+
             var team = teamService.GetAssignedTeamAsync().Result;
 
             if (team == null)
             {
-                Console.WriteLine("No team");
+                Console.WriteLine("Team has not been assigned.");
                 return;
             }
 
-            var chat = chatService.DequeueSupportRequestAsync().Result;
+            var supportRequest = chatService.DequeueSupportRequestAsync().Result;
 
-            if (chat == null)
+            if (supportRequest == null)
             {
-                Console.WriteLine("No chats");
+                Console.WriteLine("Support request queue is empty");
                 return;
             }
 
-            teamService.AssignChatToTeamAsync(chat, team).Wait();
-            teamService.ShowTeam().Wait();
-            Console.WriteLine();
+            teamService.AssignSupportRequestToTeamAsync(supportRequest, team).Wait();
+            GetTeamDetails(team);
         }
 
         public Task StopAsync(CancellationToken stoppingToken)
@@ -68,6 +69,15 @@ namespace Chat.Agent
         public void Dispose()
         {
             _timer?.Dispose();
+        }
+
+        public void GetTeamDetails(Team team)
+        {
+            foreach (var agent in team.Agents)
+            {
+                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");
+            }
+            Console.WriteLine();
         }
     }
 }

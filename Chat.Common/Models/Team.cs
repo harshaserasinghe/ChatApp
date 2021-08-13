@@ -5,13 +5,14 @@ namespace Chat.Common.Models
 {
     public class Team
     {
-        public Team(int teamId, string name, Shift shift, List<Agent> agents)
+        public Team(int teamId, string name, Shift shift, List<Agent> agents, bool isAssigned = false)
         {
             Id = teamId.ToString();//make it Guid
             TeamId = teamId;
             Name = name;
             Shift = shift;
             Agents = agents;
+            IsAssigned = isAssigned;
         }
 
         [JsonProperty(PropertyName = "id")]

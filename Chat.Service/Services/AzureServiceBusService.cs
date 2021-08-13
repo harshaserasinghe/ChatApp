@@ -2,6 +2,7 @@
 using Chat.Common.Models;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Options;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace Chat.Service.Services
 
             if (await GetMessageCountAsync() == 0)
             {
-                return null;
+               return null;
             }
 
             var message = await receiver.ReceiveMessageAsync();

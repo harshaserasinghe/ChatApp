@@ -40,7 +40,7 @@ namespace Chat.API
             });
 
             services.AddScoped<ISupportService, SupportService>();
-            services.AddScoped<ITeamService, TeamService>();
+            services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAzureServiceBusService, AzureServiceBusService>();
             services.AddSingleton<IAzureRedisService, AzureRedisService>();
             services.AddScoped<ICosmosDBService, CosmosDBService>();

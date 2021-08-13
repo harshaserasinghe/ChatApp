@@ -8,22 +8,19 @@ using System.Threading.Tasks;
 
 namespace Chat.Service.Services
 {
-    public class TeamService : ITeamService
+    public class AgentService : IAgentService
     {
-        private readonly ILogger<TeamService> logger;
+        private readonly ILogger<AgentService> logger;
         private readonly CosmoDBConfig cosmoDBConfig;
         private readonly ICosmosDBService cosmosDBService;
-        //private readonly IChatService chatService;
 
-        public TeamService(ILogger<TeamService> logger,
+        public AgentService(ILogger<AgentService> logger,
             IOptions<CosmoDBConfig> cosmoDBConfig,
             ICosmosDBService cosmosDBService)
-            //IChatService chatService)
         {
             this.logger = logger;
             this.cosmoDBConfig = cosmoDBConfig.Value;
             this.cosmosDBService = cosmosDBService;
-            //this.chatService = chatService;
         }
 
         public async Task<Team> GetTeamAsync(string id) =>
@@ -37,8 +34,8 @@ namespace Chat.Service.Services
                 new Agent(2, "Chathuranga", Level.MidLevel),
                 new Agent(3, "Bassnayaka", Level.MidLevel),
                 new Agent(4, "Chanaka", Level.TeamLead)
-            });
-
+            }, 
+            true);
 
             var team2 = new Team(2, "Team B", Shift.Afternoon, new List<Agent>
             {
@@ -60,9 +57,9 @@ namespace Chat.Service.Services
             await cosmosDBService.AddEntity(team3, cosmoDBConfig.TeamContainerId, team3.Id);
         }
 
-        public async Task ChangeShiftAsync(string id)
+        public async Task ChangeTeamAsync(string name)
         {
-            Team currentTeam = await GetAssignedTeamAsync();
+            var currentTeam = await GetAssignedTeamAsync();
 
             if (currentTeam != null)
             {
@@ -71,9 +68,18 @@ namespace Chat.Service.Services
                 await cosmosDBService.UpdateEntity(currentTeam, cosmoDBConfig.TeamContainerId, currentTeam.Id, currentTeam.Id);
             }
 
-            var newTeam = await cosmosDBService.GetEntity<Team>(cosmoDBConfig.TeamContainerId, id, id);
-            newTeam.IsAssigned = true;
-            await cosmosDBService.UpdateEntity(newTeam, cosmoDBConfig.TeamContainerId, newTeam.Id, newTeam.Id);
+            var newTeam = await GetTeamByNameAsync(name);
+            if (newTeam != null)
+            {
+                newTeam.IsAssigned = true;
+                await cosmosDBService.UpdateEntity(newTeam, cosmoDBConfig.TeamContainerId, newTeam.Id, newTeam.Id);
+            }
+        }
+
+        public async Task<Team> GetTeamByNameAsync(string name)
+        {
+            var query = $"SELECT * FROM team WHERE team.Name = '{name}'";
+            return (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
         }
 
         public async Task<Team> GetAssignedTeamAsync()
@@ -82,33 +88,33 @@ namespace Chat.Service.Services
             return (await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
         }
 
-        public async Task AssignChatToTeamAsync(Common.Models.SupportRequest chat, Team team)
+        public async Task AssignSupportRequestToTeamAsync(SupportRequest supportRequest, Team team)
         {
             team.Agents = team.Agents
                 .OrderBy(agent => agent.Level).ThenBy(agent => agent.Queue.Count).ToList();
 
-            foreach (var agentModel in team.Agents)
+            foreach (var agent in team.Agents)
             {
-                if (!agentModel.IsCapacityExceeded(agentModel.Multiplier))
+                if (!agent.IsCapacityExceeded(agent.Multiplier))
                 {
-                    if (agentModel.Level.Equals(Level.Junior))
+                    if (agent.Level.Equals(Level.Junior))
                     {
-                        await AssignChatToAgentAsync(chat, team, agentModel);
+                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
                         break;
                     }
-                    else if (agentModel.Level.Equals(Level.MidLevel))
+                    else if (agent.Level.Equals(Level.MidLevel))
                     {
-                        await AssignChatToAgentAsync(chat, team, agentModel);
+                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
                         break;
                     }
-                    else if (agentModel.Level.Equals(Level.Senior))
+                    else if (agent.Level.Equals(Level.Senior))
                     {
-                        await AssignChatToAgentAsync(chat, team, agentModel);
+                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
                         break;
                     }
-                    else if (agentModel.Level.Equals(Level.TeamLead))
+                    else if (agent.Level.Equals(Level.TeamLead))
                     {
-                        await AssignChatToAgentAsync(chat, team, agentModel);
+                        await AssignSupportRequestToAgentAsync(supportRequest, team, agent);
                         break;
                     }
                 }
@@ -120,15 +126,25 @@ namespace Chat.Service.Services
             await cosmosDBService.UpdateEntity<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
         }
 
-        private async Task AssignChatToAgentAsync(Common.Models.SupportRequest chat, Team team, Agent agentModel)
+        private async Task AssignSupportRequestToAgentAsync(SupportRequest chat, Team team, Agent agentModel)
         {
-            //await chatService.AssignChatAsync(chat.Id, team.TeamId, agentModel.AgentId);
             agentModel.Queue.Enqueue(chat);
         }
-
-        public int GetCapacity()
+       
+        public async Task DeleteTeamsAsync()
         {
-            var team  =  GetAssignedTeamAsync().Result;
+            var query = "SELECT * FROM teams";
+            var teams = await cosmosDBService.GetEntities<Team>(cosmoDBConfig.TeamContainerId, query);
+
+            foreach (var team in teams)
+            {
+                await cosmosDBService.DeleteEntity<SupportRequest>(cosmoDBConfig.TeamContainerId, team.Id, team.Id);
+            }
+        }
+
+        public async Task<int> GetCapacity()
+        {
+            var team = await GetAssignedTeamAsync();
 
             double capacity = 0;
 
@@ -138,17 +154,6 @@ namespace Chat.Service.Services
             });
 
             return (int)Math.Floor(capacity * 1.5);
-        }
-
-        public async Task ShowTeam()
-        {
-
-            var team = await GetAssignedTeamAsync();
-
-            foreach (var agent in team.Agents)
-            {
-                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");
-            }
         }
     }
 }

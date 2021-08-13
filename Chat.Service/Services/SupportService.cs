@@ -10,12 +10,12 @@ namespace Chat.Service.Services
         private readonly CosmoDBConfig cosmoDBConfig;
         private readonly IAzureServiceBusService azureServiceBusService;
         private readonly ICosmosDBService cosmosDBService;
-        private readonly ITeamService agentService;
+        private readonly IAgentService agentService;
 
         public SupportService(IOptions<CosmoDBConfig> cosmoDBConfig,
             ICosmosDBService cosmosDBService,
             IAzureServiceBusService azureServiceBusService,
-            ITeamService agentService)
+            IAgentService agentService)
         {
             this.cosmoDBConfig = cosmoDBConfig.Value;
             this.cosmosDBService = cosmosDBService;
@@ -78,13 +78,13 @@ namespace Chat.Service.Services
                 await cosmosDBService.DeleteEntity<SupportRequest>(cosmoDBConfig.SupportRquestContainerId, supportRequest.Id, supportRequest.Id);
             }
 
-            await azureServiceBusService.DequeuesupportRequestsAsync();
+            //await azureServiceBusService.DequeuesupportRequestsAsync();
         }
 
         private async Task<bool> IsCapacityExceededAsync(int count)
         {
             var messageCount = (await azureServiceBusService.GetMessageCountAsync()) + count;
-            var capacity =  agentService.GetCapacity();
+            var capacity =  await agentService.GetCapacity();
 
             if (capacity < messageCount)
             {
