@@ -13,7 +13,7 @@ namespace Chat.Agent
             using var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<ChatAgent>();
+                    services.AddHostedService<AgentTask>();
                     services.AddSingleton<ISupportService, SupportService>();
                     services.AddSingleton<IAgentService, AgentService>();
                     services.AddSingleton<IAzureServiceBusService, AzureServiceBusService>();

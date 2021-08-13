@@ -1,15 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using Chat.Common.Models;
+using System.Threading.Tasks;
 
 namespace Chat.Service.Services
 {
     public interface ISupportService
     {
-        Task AddSupportRequestAsync(Common.Models.SupportRequest chat);
+        Task AddSupportRequestAsync(SupportRequest chat);
         Task AddSupportRequestsAsync(int count);
-        Task<Common.Models.SupportRequest> DequeueSupportRequestAsync();
-        Task EnqueueSupportRequestAsync(Common.Models.SupportRequest chat);
-        Task<Common.Models.SupportRequest> GetSupportRequestAsync(string id);
-        Task AssignSupportRequestAsync(string id, int teamId, int agentId);
+        Task<SupportRequest> DequeueSupportRequestAsync();
+        Task EnqueueSupportRequestAsync(SupportRequest chat);
+        Task<SupportRequest> GetSupportRequestAsync(string id);
+        Task UpdateSupportRequestAsync(SupportRequest supportRequest, int teamId, int agentId);
         Task DeleteSupportRequestsAsync();
     }
 }

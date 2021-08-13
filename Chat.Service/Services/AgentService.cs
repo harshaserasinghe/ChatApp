@@ -126,9 +126,9 @@ namespace Chat.Service.Services
             await cosmosDBService.UpdateEntity<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
         }
 
-        private async Task AssignSupportRequestToAgentAsync(SupportRequest chat, Team team, Agent agentModel)
+        private async Task AssignSupportRequestToAgentAsync(SupportRequest chat, Team team, Agent agent)
         {
-            agentModel.Queue.Enqueue(chat);
+            agent.Queue.Enqueue(chat);
         }
        
         public async Task DeleteTeamsAsync()

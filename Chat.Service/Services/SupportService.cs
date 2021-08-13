@@ -58,14 +58,12 @@ namespace Chat.Service.Services
             }
         }
 
-        //need to optimize
-        public async Task AssignSupportRequestAsync(string id, int teamId, int agentId)
+        public async Task UpdateSupportRequestAsync(SupportRequest supportRequest, int teamId, int agentId)
         {
-            var chat = await GetSupportRequestAsync(id);
-            chat.IsAssign = true;
-            chat.TeamId = teamId;
-            chat.AgentId = agentId;
-            await cosmosDBService.UpdateEntity(chat, cosmoDBConfig.SupportRquestContainerId, chat.Id, chat.Id);
+            supportRequest.IsAssign = true;
+            supportRequest.TeamId = teamId;
+            supportRequest.AgentId = agentId;
+            await cosmosDBService.UpdateEntity(supportRequest, cosmoDBConfig.SupportRquestContainerId, supportRequest.Id, supportRequest.Id);
         }
 
         public async Task DeleteSupportRequestsAsync()

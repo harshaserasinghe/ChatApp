@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Chat.Agent
 {
-    public class ChatAgent : IHostedService, IDisposable
+    public class AgentTask : IHostedService, IDisposable
     {
         private Timer _timer;
         //private int executionCount = 0;
-        private readonly ILogger<ChatAgent> logger;
+        private readonly ILogger<AgentTask> logger;
         private readonly ISupportService chatService;
         private readonly IAgentService teamService;
 
-        public ChatAgent(ILogger<ChatAgent> logger,
+        public AgentTask(ILogger<AgentTask> logger,
             ISupportService chatService,
             IAgentService teamService)
         {
@@ -29,7 +29,7 @@ namespace Chat.Agent
         {
             
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(2));
 
             return Task.CompletedTask;
         }
@@ -37,7 +37,6 @@ namespace Chat.Agent
         private void DoWork(object state)
         {
             //var count = Interlocked.Increment(ref executionCount);
-
 
             var team = teamService.GetAssignedTeamAsync().Result;
 
@@ -56,6 +55,7 @@ namespace Chat.Agent
             }
 
             teamService.AssignSupportRequestToTeamAsync(supportRequest, team).Wait();
+            chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
             GetTeamDetails(team);
         }
 

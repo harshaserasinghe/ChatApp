@@ -44,14 +44,6 @@ namespace Chat.Demo.Controllers
             return Ok();
         }
 
-        [Route("AssignSupportRequest")]
-        [HttpPost]
-        public async Task<IActionResult> PostAsync(string id, int teamId, int agentId)
-        {
-            await supportService.AssignSupportRequestAsync(id, teamId, agentId);
-            return Ok();
-        }
-
         [Route("DeleteSupportRequests")]
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync()
