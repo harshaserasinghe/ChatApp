@@ -11,12 +11,14 @@ namespace Chat.Common.Models
             TeamId = teamId;
             Name = name;
             Agents = agents;
+            IsOverflow = true;
         }
 
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
         public int TeamId { get; set; }
         public string Name { get; set; }
+        public bool IsOverflow { get; set; }
         public List<Agent> Agents { get; set; } = new List<Agent>();
     }
 }

@@ -76,7 +76,7 @@ namespace Chat.Service.Services
                 await cosmosDBService.DeleteEntity<SupportRequest>(cosmoDBConfig.SupportRquestContainerId, supportRequest.Id, supportRequest.Id);
             }
 
-            //await azureServiceBusService.DequeuesupportRequestsAsync();
+            await azureServiceBusService.DequeueSupportRequestsAsync();
         }
 
         private async Task<bool> IsCapacityExceededAsync(int count)

@@ -6,7 +6,7 @@ namespace Chat.Service.Services
     {
         Task EnqueueAsync(Common.Models.SupportRequest chatModel);
         Task<Common.Models.SupportRequest> DequeueAsync();
-        Task DequeuesupportRequestsAsync();
+        Task DequeueSupportRequestsAsync();
         Task<int> GetMessageCountAsync();
     }
 }

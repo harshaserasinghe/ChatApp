@@ -7,7 +7,7 @@ namespace Chat.Common.Models
     {
         public SupportRequest(int supportRequestId, string userId, string message)
         {
-            Id = Guid.NewGuid().ToString();
+            Id = supportRequestId.ToString();//Guid.NewGuid().ToString();
             SupportRequestId = supportRequestId;
             UserId = userId;
             Message = message;

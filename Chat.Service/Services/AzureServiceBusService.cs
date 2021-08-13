@@ -43,17 +43,13 @@ namespace Chat.Service.Services
             return supportrequest;
         }
 
-        public async Task DequeuesupportRequestsAsync()
+        public async Task DequeueSupportRequestsAsync()
         {
             var receiver = client.CreateReceiver(azureServiceBusConfig.Queue);
-            await foreach (var message in receiver.ReceiveMessagesAsync())
+
+            while ((await receiver.PeekMessageAsync()) != null)
             {
-
-                if (await GetMessageCountAsync() == 0)
-                {
-                    break;
-                }
-
+                var message = await receiver.ReceiveMessageAsync();
                 await receiver.CompleteMessageAsync(message);
             }
         }
