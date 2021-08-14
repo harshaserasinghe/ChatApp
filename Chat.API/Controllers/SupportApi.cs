@@ -44,11 +44,11 @@ namespace Chat.Demo.Controllers
             return Ok();
         }
 
-        [Route("DeleteSupportRequests")]
+        [Route("DeleteAllSupportRequests")]
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync()
         {
-            await supportService.DeleteSupportRequestsAsync();
+            await supportService.DeleteSupportAllRequestsAsync();
             return Ok();
         }
 

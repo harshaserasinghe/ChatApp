@@ -11,25 +11,26 @@ namespace Chat.Agent
 {
     public class AgentTask : IHostedService, IDisposable
     {
+        private long executionCount = 0;
         private Timer _timer;
         private readonly ILogger<AgentTask> logger;
         private readonly ISupportService chatService;
-        private readonly IAgentService teamService;
+        private readonly IAgentService agentService;
 
         public AgentTask(ILogger<AgentTask> logger,
             ISupportService chatService,
-            IAgentService teamService)
+            IAgentService agentService)
         {
             this.logger = logger;
             this.chatService = chatService;
-            this.teamService = teamService;
+            this.agentService = agentService;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-
+            Console.WriteLine("Agent service started.");
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(1));
 
             return Task.CompletedTask;
         }
@@ -38,23 +39,36 @@ namespace Chat.Agent
         {
             try
             {
-                var team = teamService.GetAssignedTeamAsync().Result;
+                if (Interlocked.Read(ref executionCount) > 30)
+                {
+                    StopAsync(new CancellationToken()).Wait();
+                }
+
+                var team = agentService.GetAssignedTeamAsync().Result;
 
                 if (team == null)
                 {
-                    Console.WriteLine("Team has not been assigned.");
+                    Console.WriteLine("Agents are not assigned.");
                     return;
                 }
 
-                if (chatService.GetMessageCountAsync().Result < 1)
+                if (!chatService.IsSupportRequestsAvailableAsync().Result)
                 {
-                    Console.WriteLine("Support request queue is empty.");
+                    Console.WriteLine("There are no support requests.");
+                    Interlocked.Increment(ref executionCount);
                     return;
                 }
 
+                if (agentService.IsAllAgentsBusy(team))
+                {
+                    Console.WriteLine("Agents are not busy.");
+                    return;
+                }
+
+                Interlocked.Exchange(ref executionCount, 0);
                 var supportRequest = chatService.DequeueSupportRequestAsync().Result;
-                chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
-                teamService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
+                agentService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
+                chatService.UpdateSupportRequestAsync(supportRequest).Wait();
                 GetTeamDetails(team);
             }
             catch (Exception ex)
@@ -66,8 +80,8 @@ namespace Chat.Agent
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
+            Console.WriteLine("Agent service ended.");
             _timer?.Change(Timeout.Infinite, 0);
-
             return Task.CompletedTask;
         }
 

@@ -35,7 +35,6 @@ namespace Chat.Service.Services
             return team;
         }
 
-
         public async Task AddTeamsAsync()
         {
             var team = new Team(1, "Team A", Shift.Office, new List<Agent>
@@ -85,12 +84,10 @@ namespace Chat.Service.Services
             if (currentTeam != null)
             {
                 currentTeam.IsAssigned = false;
-                currentTeam.Agents.ForEach(agent => agent.Queue.Clear());
                 await cosmosDBService.UpdateEntityAsync(currentTeam, cosmoDBConfig.TeamContainerId, currentTeam.Id, currentTeam.Id);
 
                 if (currentTeam.HasOverflow)
                 {
-                    currentTeam.OverTeamFlow.Agents.ForEach(agent => agent.Queue.Clear());
                     await cosmosDBService.UpdateEntityAsync(currentTeam.OverTeamFlow, cosmoDBConfig.TeamContainerId, currentTeam.OverTeamFlow.Id, currentTeam.OverTeamFlow.Id);
                 }
             }
@@ -152,21 +149,25 @@ namespace Chat.Service.Services
                         if (agent.Level.Equals(Level.Junior))
                         {
                             agent.Queue.Enqueue(supportRequest);
+                            UpdateSupportRequest(supportRequest, team, agent);
                             break;
                         }
                         else if (agent.Level.Equals(Level.MidLevel))
                         {
                             agent.Queue.Enqueue(supportRequest);
+                            UpdateSupportRequest(supportRequest, team, agent);
                             break;
                         }
                         else if (agent.Level.Equals(Level.Senior))
                         {
                             agent.Queue.Enqueue(supportRequest);
+                            UpdateSupportRequest(supportRequest, team, agent);
                             break;
                         }
                         else if (agent.Level.Equals(Level.TeamLead))
                         {
                             agent.Queue.Enqueue(supportRequest);
+                            UpdateSupportRequest(supportRequest, team, agent);
                             break;
                         }
                     }
@@ -176,7 +177,6 @@ namespace Chat.Service.Services
             {
                 if (team.HasOverflow)
                 {
-
                     team.OverTeamFlow.Agents = team.OverTeamFlow.Agents
                         .OrderBy(agent => agent.Queue.Count)
                         .ToList();
@@ -186,6 +186,7 @@ namespace Chat.Service.Services
                         if (!overFlowAgent.IsCapacityExceeded())
                         {
                             overFlowAgent.Queue.Enqueue(supportRequest);
+                            UpdateSupportRequest(supportRequest, team, overFlowAgent);
                             break;
                         }
                     }
@@ -206,14 +207,37 @@ namespace Chat.Service.Services
             await cosmosDBService.UpdateEntityAsync<Team>(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
         }
 
-        public async Task DeleteTeamsAsync()
+        private void UpdateSupportRequest(SupportRequest supportRequest, Team team, Agent agent)
+        {
+            supportRequest.TeamId = team.TeamId;
+            supportRequest.AgentId = agent.AgentId;
+            supportRequest.IsAssign = true;
+        }
+
+        public async Task RestAllAgents()
+        {
+            var query = $"SELECT * FROM team WHERE team.IsOverflow = false";
+            var teams = await cosmosDBService.GetEntitiesAsync<Team>(cosmoDBConfig.TeamContainerId, query);
+
+            foreach (var team in teams)
+            {
+                team.Agents.ForEach(agent => agent.Queue.Clear());
+                await cosmosDBService.UpdateEntityAsync(team, cosmoDBConfig.TeamContainerId, team.Id, team.Id);
+            }
+
+            var overFlowTeam = await GetOverflowTeamAsync();
+            await cosmosDBService.UpdateEntityAsync(overFlowTeam, cosmoDBConfig.TeamContainerId, overFlowTeam.Id, overFlowTeam.Id);
+
+        }
+
+        public async Task DeleteAllTeamsAsync()
         {
             var query = "SELECT * FROM teams";
             var teams = await cosmosDBService.GetEntitiesAsync<Team>(cosmoDBConfig.TeamContainerId, query);
 
             foreach (var team in teams)
             {
-                await cosmosDBService.DeleteEntityAsync<SupportRequest>(cosmoDBConfig.TeamContainerId, team.Id, team.Id);
+                await cosmosDBService.DeleteEntityAsync<Team>(cosmoDBConfig.TeamContainerId, team.Id, team.Id);
             }
         }
 
@@ -229,6 +253,18 @@ namespace Chat.Service.Services
             }
 
             return (int)Math.Floor(capacity * 1.5);
+        }
+
+        public bool IsAllAgentsBusy(Team team)
+        {
+            if (!team.HasOverflow)
+            {
+                return team.IsCapacityExceeded();
+            }
+            else
+            {
+                return team.IsCapacityExceeded() && team.OverTeamFlow.IsCapacityExceeded();
+            }
         }
     }
 }

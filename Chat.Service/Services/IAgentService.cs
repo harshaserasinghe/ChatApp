@@ -12,6 +12,8 @@ namespace Chat.Service.Services
         Task<Team> GetTeamByNameAsync(string name);
         Task AssignSupportRequestToAgentAsync(SupportRequest supportRequest, Team team);
         Task<int> GetCapacity();
-        Task DeleteTeamsAsync();
+        bool IsAllAgentsBusy(Team team);
+        Task DeleteAllTeamsAsync();
+        Task RestAllAgents();
     }
 }

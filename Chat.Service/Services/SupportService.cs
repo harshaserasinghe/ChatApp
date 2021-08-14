@@ -23,10 +23,10 @@ namespace Chat.Service.Services
             this.azureServiceBusService = azureServiceBusService;
             this.agentService = agentService;
         }
-        
-        public async Task EnqueueSupportRequestAsync(SupportRequest supportRequest)=>           
+
+        public async Task EnqueueSupportRequestAsync(SupportRequest supportRequest) =>
             await azureServiceBusService.EnqueueAsync(supportRequest);
-        
+
         public async Task<SupportRequest> DequeueSupportRequestAsync() =>
             await azureServiceBusService.DequeueAsync<SupportRequest>();
 
@@ -37,7 +37,7 @@ namespace Chat.Service.Services
         {
             if (await IsCapacityExceededAsync())
             {
-                throw new ServiceBusException(2,"Support request capacity has been exceeded.");
+                throw new ServiceBusException(2, "Support request capacity has been exceeded.");
             }
 
             await cosmosDBService.AddEntityAsync(supportRequest, cosmoDBConfig.SupportRquestContainerId, supportRequest.Id);
@@ -59,15 +59,10 @@ namespace Chat.Service.Services
             }
         }
 
-        public async Task UpdateSupportRequestAsync(SupportRequest supportRequest, int teamId, int agentId)
-        {
-            supportRequest.IsAssign = true;
-            supportRequest.TeamId = teamId;
-            supportRequest.AgentId = agentId;
+        public async Task UpdateSupportRequestAsync(SupportRequest supportRequest) =>
             await cosmosDBService.UpdateEntityAsync(supportRequest, cosmoDBConfig.SupportRquestContainerId, supportRequest.Id, supportRequest.Id);
-        }
 
-        public async Task DeleteSupportRequestsAsync()
+        public async Task DeleteSupportAllRequestsAsync()
         {
             var query = "SELECT * FROM supportRequests";
             var supportRequests = await cosmosDBService.GetEntitiesAsync<SupportRequest>(cosmoDBConfig.SupportRquestContainerId, query);
@@ -83,12 +78,12 @@ namespace Chat.Service.Services
         private async Task<bool> IsCapacityExceededAsync()
         {
             var messageCount = (await azureServiceBusService.GetMessageCountAsync()) + 1;
-            var capacity =  await agentService.GetCapacity();
+            var capacity = await agentService.GetCapacity();
             return capacity < messageCount;
 
         }
 
-        public async Task<int> GetMessageCountAsync() => 
-            await azureServiceBusService.GetMessageCountAsync();
+        public async Task<bool> IsSupportRequestsAvailableAsync() =>
+            await azureServiceBusService.GetMessageCountAsync() > 0;
     }
 }

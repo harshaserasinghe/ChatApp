@@ -2,6 +2,7 @@ using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat.Agent

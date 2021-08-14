@@ -36,18 +36,26 @@ namespace Chat.API.Controllers
         }
 
         [Route("ChangeTeam")]
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> PostAsync(string name)
         {
             await agentService.ChangeTeamAsync(name);
             return Ok();
         }
 
-        [Route("DeleteTeams")]
+        [Route("RestAllAgents")]
+        [HttpPut]
+        public async Task<IActionResult> PostAsync2()
+        {
+            await agentService.RestAllAgents();
+            return Ok();
+        }
+
+        [Route("DeleteAllTeams")]
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync()
         {
-            await agentService.DeleteTeamsAsync();
+            await agentService.DeleteAllTeamsAsync();
             return Ok();
         }
     }

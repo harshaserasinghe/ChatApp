@@ -10,8 +10,8 @@ namespace Chat.Service.Services
         Task<SupportRequest> DequeueSupportRequestAsync();
         Task EnqueueSupportRequestAsync(SupportRequest chat);
         Task<SupportRequest> GetSupportRequestAsync(string id);
-        Task UpdateSupportRequestAsync(SupportRequest supportRequest, int teamId, int agentId);
-        Task DeleteSupportRequestsAsync();
-        Task<int> GetMessageCountAsync();
+        Task UpdateSupportRequestAsync(SupportRequest supportRequest);
+        Task DeleteSupportAllRequestsAsync();
+        Task<bool> IsSupportRequestsAvailableAsync();
     }
 }

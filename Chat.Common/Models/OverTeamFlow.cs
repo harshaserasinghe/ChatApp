@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chat.Common.Models
 {
@@ -21,5 +22,8 @@ namespace Chat.Common.Models
         public string Name { get; set; }
         public bool IsOverflow { get; set; }
         public List<Agent> Agents { get; set; } = new List<Agent>();
+
+        public bool IsCapacityExceeded() =>
+          Agents.All(agent => agent.IsCapacityExceeded());
     }
 }
