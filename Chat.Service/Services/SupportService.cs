@@ -87,5 +87,8 @@ namespace Chat.Service.Services
             return capacity < messageCount;
 
         }
+
+        public async Task<int> GetMessageCountAsync() => 
+            await azureServiceBusService.GetMessageCountAsync();
     }
 }

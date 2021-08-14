@@ -12,5 +12,6 @@ namespace Chat.Service.Services
         Task<SupportRequest> GetSupportRequestAsync(string id);
         Task UpdateSupportRequestAsync(SupportRequest supportRequest, int teamId, int agentId);
         Task DeleteSupportRequestsAsync();
+        Task<int> GetMessageCountAsync();
     }
 }

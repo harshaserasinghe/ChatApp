@@ -4,7 +4,7 @@ namespace Chat.Service.Services
 {
     public interface IAzureServiceBusService
     {
-        Task EnqueueAsync<T>(T chatModel);
+        Task EnqueueAsync<T>(T entity);
         Task<T> DequeueAsync<T>();
         Task DequeueSupportRequestsAsync();
         Task<int> GetMessageCountAsync();

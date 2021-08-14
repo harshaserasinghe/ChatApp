@@ -12,7 +12,6 @@ namespace Chat.Agent
     public class AgentTask : IHostedService, IDisposable
     {
         private Timer _timer;
-        //private int executionCount = 0;
         private readonly ILogger<AgentTask> logger;
         private readonly ISupportService chatService;
         private readonly IAgentService teamService;
@@ -30,37 +29,36 @@ namespace Chat.Agent
         {
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(2));
+                TimeSpan.FromSeconds(5));
 
             return Task.CompletedTask;
         }
 
         private void DoWork(object state)
         {
-            //var count = Interlocked.Increment(ref executionCount);
-
-            var team = teamService.GetAssignedTeamAsync().Result;
-
-            if (team == null)
-            {
-                Console.WriteLine("Team has not been assigned.");
-                return;
-            }
-
             try
             {
+                var team = teamService.GetAssignedTeamAsync().Result;
+
+                if (team == null)
+                {
+                    Console.WriteLine("Team has not been assigned.");
+                    return;
+                }
+
+                if (chatService.GetMessageCountAsync().Result < 1)
+                {
+                    Console.WriteLine("Support request queue is empty.");
+                    return;
+                }
+
                 var supportRequest = chatService.DequeueSupportRequestAsync().Result;
                 chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
                 teamService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
                 GetTeamDetails(team);
             }
-            catch (ServiceBusException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 return;
             }
