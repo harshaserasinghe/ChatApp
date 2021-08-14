@@ -84,15 +84,8 @@ namespace Chat.Service.Services
         {
             var messageCount = (await azureServiceBusService.GetMessageCountAsync()) + 1;
             var capacity =  await agentService.GetCapacity();
+            return capacity < messageCount;
 
-            if (capacity < messageCount)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
     }
 }

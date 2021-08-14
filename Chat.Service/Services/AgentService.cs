@@ -106,7 +106,7 @@ namespace Chat.Service.Services
 
         public async Task<Team> GetTeamByNameAsync(string name)
         {
-            var query = $"SELECT * FROM team WHERE team.Name = '{name}'";
+            var query = $"SELECT * FROM team WHERE UPPER(team.Name) = '{name.ToUpper()}'";
             var team = (await cosmosDBService.GetEntitiesAsync<Team>(cosmoDBConfig.TeamContainerId, query)).FirstOrDefault();
 
             if (team != null && team.HasOverflow)
