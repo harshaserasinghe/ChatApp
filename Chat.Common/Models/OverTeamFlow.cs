@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Chat.Common.Models
@@ -7,7 +8,7 @@ namespace Chat.Common.Models
     {
         public OverTeamFlow(int teamId, string name, List<Agent> agents)
         {
-            Id = teamId.ToString();//make it Guid
+            Id = Guid.NewGuid().ToString();
             TeamId = teamId;
             Name = name;
             Agents = agents;

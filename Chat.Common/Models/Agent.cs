@@ -21,7 +21,7 @@ namespace Chat.Common.Models
         public Queue<SupportRequest> Queue { get; set; } = new Queue<SupportRequest>();
 
         public bool IsCapacityExceeded() =>
-            (Multiplier * 10) == Queue.Count;
+            (Multiplier * 10) < Queue.Count + 1;
 
         public double GetMutiplier(Level level)
         {

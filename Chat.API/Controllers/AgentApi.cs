@@ -21,9 +21,9 @@ namespace Chat.API.Controllers
 
         [Route("GetTeam")]
         [HttpGet]
-        public async Task<IActionResult> GetAsync(string id)
+        public async Task<IActionResult> GetAsync(string name)
         {
-            var team = await agentService.GetTeamAsync(id);
+            var team = await agentService.GetTeamByNameAsync(name);
             return Ok(team);
         }
 

@@ -54,7 +54,7 @@ namespace Chat.Agent
                 return;
             }
 
-            teamService.AssignSupportRequestToTeamAsync(supportRequest, team).Wait();
+            teamService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
             chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
             GetTeamDetails(team);
         }

@@ -9,7 +9,8 @@ namespace Chat.Service.Services
         Task<Team> GetAssignedTeamAsync();
         Task ChangeTeamAsync(string name);
         Task<Team> GetTeamAsync(string id);
-        Task AssignSupportRequestToTeamAsync(SupportRequest supportRequest, Team team);
+        Task<Team> GetTeamByNameAsync(string name);
+        Task AssignSupportRequestToAgentAsync(SupportRequest supportRequest, Team team);
         Task<int> GetCapacity();
         Task DeleteTeamsAsync();
     }

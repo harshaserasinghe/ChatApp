@@ -47,7 +47,7 @@ namespace Chat.Service.Services
         {
             var receiver = client.CreateReceiver(azureServiceBusConfig.Queue);
 
-            while ((await receiver.PeekMessageAsync()) != null)
+            while (0 < (await GetMessageCountAsync()))
             {
                 var message = await receiver.ReceiveMessageAsync();
                 await receiver.CompleteMessageAsync(message);

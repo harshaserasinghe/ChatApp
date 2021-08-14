@@ -9,7 +9,7 @@ namespace Chat.Common.Models
     {
         public Team(int teamId, string name, Shift shift, List<Agent> agents, bool isAssigned = false, bool hasOverflow = false)
         {
-            Id = teamId.ToString(); //Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString();
             TeamId = teamId;
             Name = name;
             Shift = shift;
