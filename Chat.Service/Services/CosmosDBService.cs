@@ -22,26 +22,26 @@ namespace Chat.Service.Services
         private Container GetContainer(string containerId) =>
             cosmosClient.GetContainer(cosomoDBConfig.DataBaseId, containerId);
 
-        public async Task<T> GetEntity<T>(string containerId, string partitionKey, string id)
+        public async Task<T> GetEntityAsync<T>(string containerId, string partitionKey, string id)
         {
             var container = GetContainer(containerId);
             return await container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
         }
 
-        public async Task AddEntity<T>(T entity, string containerId, string partitionKey)
+        public async Task AddEntityAsync<T>(T entity, string containerId, string partitionKey)
         {
             var container = GetContainer(containerId);
             await container.CreateItemAsync<T>(entity);
         }
 
-        public async Task UpdateEntity<T>(T entity, string containerId, string partitionKey, string id)
+        public async Task UpdateEntityAsync<T>(T entity, string containerId, string partitionKey, string id)
         {
             var container = GetContainer(containerId);
             await container.ReplaceItemAsync<T>(entity, id, new PartitionKey(partitionKey));
         }
 
 
-        public async Task<List<T>> GetEntities<T>(string containerId, string query)
+        public async Task<List<T>> GetEntitiesAsync<T>(string containerId, string query)
         {
 
             var queryDefinition = new QueryDefinition(query);
@@ -61,7 +61,7 @@ namespace Chat.Service.Services
             return entities;
         }
 
-        public async Task DeleteEntity<T>(string containerId, string partitionKey, string id)
+        public async Task DeleteEntityAsync<T>(string containerId, string partitionKey, string id)
         {
             var container = GetContainer(containerId);
             await container.DeleteItemAsync<T>(id, new PartitionKey(partitionKey));

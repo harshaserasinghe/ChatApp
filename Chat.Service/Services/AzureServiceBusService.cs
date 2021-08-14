@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Chat.Common.Exceptions;
 using Chat.Common.Models;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Options;
@@ -21,25 +22,25 @@ namespace Chat.Service.Services
             manager = new ManagementClient(this.azureServiceBusConfig.ConnectionString);        
         }
 
-        public async Task EnqueueAsync(SupportRequest supportrequest)
+        public async Task EnqueueAsync<T>(T supportrequest)
         {
             var sender = client.CreateSender(azureServiceBusConfig.Queue);
             var message = new ServiceBusMessage(JsonSerializer.Serialize(supportrequest));
             await sender.SendMessageAsync(message);
         }
 
-        public async Task<SupportRequest> DequeueAsync()
+        public async Task<T> DequeueAsync<T>()
         {
             var receiver = client.CreateReceiver(azureServiceBusConfig.Queue);
 
             if (await GetMessageCountAsync() == 0)
             {
-               return null;
+                throw new Common.Exceptions.ServiceBusException(1,"Support request queue is empty.");
             }
 
             var message = await receiver.ReceiveMessageAsync();
             await receiver.CompleteMessageAsync(message);
-            var supportrequest = JsonSerializer.Deserialize<SupportRequest>(message.Body.ToString());
+            var supportrequest = JsonSerializer.Deserialize<T>(message.Body.ToString());
             return supportrequest;
         }
 
@@ -56,6 +57,5 @@ namespace Chat.Service.Services
 
         public async Task<int> GetMessageCountAsync()=>       
           (int)(await manager.GetQueueRuntimeInfoAsync(azureServiceBusConfig.Queue)).MessageCountDetails.ActiveMessageCount;
-           
     }
 }

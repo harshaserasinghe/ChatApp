@@ -1,3 +1,4 @@
+using Chat.Common.Exceptions;
 using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +28,7 @@ namespace Chat.Agent
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            
+
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
                 TimeSpan.FromSeconds(2));
 
@@ -46,17 +47,23 @@ namespace Chat.Agent
                 return;
             }
 
-            var supportRequest = chatService.DequeueSupportRequestAsync().Result;
-
-            if (supportRequest == null)
+            try
             {
-                Console.WriteLine("Support request queue is empty");
+                var supportRequest = chatService.DequeueSupportRequestAsync().Result;
+                chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
+                teamService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
+                GetTeamDetails(team);
+            }
+            catch (ServiceBusException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
                 return;
             }
-
-            teamService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
-            chatService.UpdateSupportRequestAsync(supportRequest, team.TeamId, 0).Wait();
-            GetTeamDetails(team);
         }
 
         public Task StopAsync(CancellationToken stoppingToken)
@@ -75,7 +82,7 @@ namespace Chat.Agent
         {
             foreach (var agent in team.Agents)
             {
-                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");              
+                Console.WriteLine($"{agent.AgentId} {team.Name} {agent.Name} {agent.Level.ToString()} {agent.Queue.Count}");
             }
 
             if (team.HasOverflow)
