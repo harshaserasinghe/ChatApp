@@ -1,4 +1,5 @@
 ﻿using Chat.Common.Models;
+using Chat.Service.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;

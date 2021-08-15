@@ -1,4 +1,4 @@
-﻿using Chat.Service.Services;
+﻿using Chat.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;

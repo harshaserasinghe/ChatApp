@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Chat.Service.Services
+namespace Chat.Service.Interfaces
 {
     public interface ICosmosDBService
     {

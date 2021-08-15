@@ -1,5 +1,6 @@
 ﻿using Chat.Common.Exceptions;
 using Chat.Common.Models;
+using Chat.Service.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 

@@ -1,9 +1,8 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Chat.Common.Exceptions;
 using Chat.Common.Models;
+using Chat.Service.Interfaces;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Options;
-using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 

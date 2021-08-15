@@ -1,4 +1,5 @@
 ﻿using Chat.Common.Models;
+using Chat.Service.Interfaces;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System;

@@ -1,5 +1,5 @@
 using Chat.Common.Models;
-using Chat.Service.Services;
+using Chat.Service.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;

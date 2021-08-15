@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Chat.Service.Services
+namespace Chat.Service.Interfaces
 {
     public interface IAzureServiceBusService
     {
