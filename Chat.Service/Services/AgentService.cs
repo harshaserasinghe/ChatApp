@@ -148,26 +148,26 @@ namespace Chat.Service.Services
                     {
                         if (agent.Level.Equals(Level.Junior))
                         {
-                            agent.Queue.Enqueue(supportRequest);
                             UpdateSupportRequest(supportRequest, team, agent);
+                            agent.Queue.Enqueue(supportRequest);
                             break;
                         }
                         else if (agent.Level.Equals(Level.MidLevel))
                         {
-                            agent.Queue.Enqueue(supportRequest);
                             UpdateSupportRequest(supportRequest, team, agent);
+                            agent.Queue.Enqueue(supportRequest);
                             break;
                         }
                         else if (agent.Level.Equals(Level.Senior))
                         {
-                            agent.Queue.Enqueue(supportRequest);
                             UpdateSupportRequest(supportRequest, team, agent);
+                            agent.Queue.Enqueue(supportRequest);
                             break;
                         }
                         else if (agent.Level.Equals(Level.TeamLead))
                         {
-                            agent.Queue.Enqueue(supportRequest);
                             UpdateSupportRequest(supportRequest, team, agent);
+                            agent.Queue.Enqueue(supportRequest);
                             break;
                         }
                     }
@@ -185,8 +185,8 @@ namespace Chat.Service.Services
                     {
                         if (!overFlowAgent.IsCapacityExceeded())
                         {
-                            overFlowAgent.Queue.Enqueue(supportRequest);
                             UpdateSupportRequest(supportRequest, team, overFlowAgent);
+                            overFlowAgent.Queue.Enqueue(supportRequest);
                             break;
                         }
                     }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using Chat.Common.Models;
+﻿using Chat.Common.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Chat.Service.Services
 {

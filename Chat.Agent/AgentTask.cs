@@ -1,4 +1,3 @@
-using Chat.Common.Exceptions;
 using Chat.Common.Models;
 using Chat.Service.Services;
 using Microsoft.Extensions.Hosting;

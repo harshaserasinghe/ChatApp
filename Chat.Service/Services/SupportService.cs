@@ -1,7 +1,6 @@
 ﻿using Chat.Common.Exceptions;
 using Chat.Common.Models;
 using Microsoft.Extensions.Options;
-using System;
 using System.Threading.Tasks;
 
 namespace Chat.Service.Services
