@@ -38,10 +38,10 @@ namespace Chat.Agent
         {
             try
             {
-                if (Interlocked.Read(ref executionCount) > 10)
-                {
-                    StopAsync(new CancellationToken()).Wait();
-                }
+                //if (Interlocked.Read(ref executionCount) > 10)
+                //{
+                //    StopAsync(new CancellationToken()).Wait();
+                //}
 
                 var team = agentService.GetAssignedTeamAsync().Result;
 
@@ -54,7 +54,7 @@ namespace Chat.Agent
                 if (!chatService.IsSupportRequestsAvailableAsync().Result)
                 {
                     Console.WriteLine("There are no support requests.");
-                    Interlocked.Increment(ref executionCount);
+                    //Interlocked.Increment(ref executionCount);
                     return;
                 }
 
@@ -64,7 +64,7 @@ namespace Chat.Agent
                     return;
                 }
 
-                Interlocked.Exchange(ref executionCount, 0);
+                //Interlocked.Exchange(ref executionCount, 0);
                 var supportRequest = chatService.DequeueSupportRequestAsync().Result;
                 agentService.AssignSupportRequestToAgentAsync(supportRequest, team).Wait();
                 chatService.UpdateSupportRequestAsync(supportRequest).Wait();

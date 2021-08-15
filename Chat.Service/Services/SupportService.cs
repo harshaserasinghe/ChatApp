@@ -3,6 +3,7 @@ using Chat.Common.Models;
 using Chat.Service.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Chat.Service.Services
 {
@@ -30,8 +31,11 @@ namespace Chat.Service.Services
         public async Task<SupportRequest> DequeueSupportRequestAsync() =>
             await azureServiceBusService.DequeueAsync<SupportRequest>();
 
-        public async Task<SupportRequest> GetSupportRequestAsync(string id) =>
-          await cosmosDBService.GetEntityAsync<SupportRequest>(cosmoDBConfig.SupportRquestContainerId, id, id);
+        public async Task<SupportRequest> GetSupportRequestAsync(string id)
+        {
+            var query = $"SELECT * FROM supportRequest WHERE supportRequest.SupportRequestId = {id}";
+            return (await cosmosDBService.GetEntitiesAsync<SupportRequest>(cosmoDBConfig.SupportRquestContainerId, query)).FirstOrDefault();
+        }
 
         public async Task AddSupportRequestAsync(SupportRequest supportRequest)
         {
