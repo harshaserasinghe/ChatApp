@@ -38,7 +38,7 @@ namespace Chat.Agent
         {
             try
             {
-                if (Interlocked.Read(ref executionCount) > 30)
+                if (Interlocked.Read(ref executionCount) > 10)
                 {
                     StopAsync(new CancellationToken()).Wait();
                 }

@@ -16,6 +16,7 @@ namespace Chat.Common.Models
             Agents = agents;
             IsAssigned = isAssigned;
             HasOverflow = hasOverflow;
+            IsOverflow = false;
         }
 
         [JsonProperty(PropertyName = "id")]
@@ -25,6 +26,7 @@ namespace Chat.Common.Models
         public Shift Shift { get; set; }
         public bool IsAssigned { get; set; }
         public bool HasOverflow { get; set; }
+        public bool IsOverflow { get; set; }
         public List<Agent> Agents { get; set; } = new List<Agent>();
 
         [JsonIgnore]

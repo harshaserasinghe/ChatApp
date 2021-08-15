@@ -226,6 +226,7 @@ namespace Chat.Service.Services
             }
 
             var overFlowTeam = await GetOverflowTeamAsync();
+            overFlowTeam.Agents.ForEach(agent => agent.Queue.Clear());
             await cosmosDBService.UpdateEntityAsync(overFlowTeam, cosmoDBConfig.TeamContainerId, overFlowTeam.Id, overFlowTeam.Id);
 
         }
