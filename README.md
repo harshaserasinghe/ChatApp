@@ -10,6 +10,7 @@ You will need the following tools:
 
 * [Visual Studio Code or Visual Studio 2019](https://visualstudio.microsoft.com/vs/)
 * [.NET Core SDK 5](https://dotnet.microsoft.com/download/dotnet-core/5.0)
+* Azure subscription with a CosmosDB and ServiceBus Queue
 
 ### Setup
 Follow these steps to get your development environment set up:
